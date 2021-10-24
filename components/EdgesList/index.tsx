@@ -109,7 +109,7 @@ const EdgesList: NextPage = () => {
 
   return (
     <>
-      <Filters />
+      <Filters setPage={setPage} />
       <ListContainer>
         {filteredEdges(edges)
           ?.slice(pageStart, pageEnd)

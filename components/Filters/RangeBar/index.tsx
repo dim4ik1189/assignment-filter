@@ -1,3 +1,4 @@
+import {useEffect, useReducer, useState} from "react";
 import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useRouter } from "next/router";
@@ -22,7 +23,7 @@ const MAX = 600;
 
 const RangeBar = () => {
   const router = useRouter();
-  const onAfterChange = (rangeArr: Array<number>): void => {
+  const handleRangeChange = (rangeArr: Array<number>): void => {
     const [range_start, range_end] = rangeArr;
     router.push({
       query: { ...router.query, range_start, range_end },
@@ -33,9 +34,9 @@ const RangeBar = () => {
       min={MIN}
       max={MAX}
       step={MIN}
-      defaultValue={[Number(router.query.range_start) || MIN, Number(router.query.range_end || MAX)]}
+      value={[Number(router.query.range_start) || MIN, Number(router.query.range_end || MAX)]}
       dots
-      onAfterChange={onAfterChange}
+      onChange={handleRangeChange}
       marks={MARKS}
     />
   );

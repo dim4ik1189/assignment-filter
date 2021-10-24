@@ -33,7 +33,7 @@ const COLOURS = [
   "Silver",
 ];
 
-const Filters: NextPage = () => {
+const Filters: React.FC<{ setPage: (page: number) => void }> = ({ setPage }) => {
   const router = useRouter();
 
   const handleShoeTypeFilterClick = ({ target }: any): void => {
@@ -61,6 +61,7 @@ const Filters: NextPage = () => {
     router.push({
       query: { ...routerQueryCopy, colour: e.target.id },
     });
+    setPage(0);
   };
 
   const handleClearFilters = () => {
@@ -68,6 +69,7 @@ const Filters: NextPage = () => {
       router.push({
         query: {},
       });
+      setPage(0);
     }
   };
 
