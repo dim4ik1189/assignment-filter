@@ -35,7 +35,7 @@ const Filters: NextPage = () => {
       delete routerQueryCopy.page;
     }
 
-    if (target.id === 'All') {
+    if (target.id === "All") {
       delete routerQueryCopy.shoe_type;
     }
     router.push({
@@ -61,15 +61,13 @@ const Filters: NextPage = () => {
   return (
     <FiltersContainer>
       <ShoeTypeFilterContainer>
+        TAGS:
         {SHOE_TYPE_FILTERS.map((mainFilter: string) => {
           return (
             <a
               id={mainFilter}
               className={
-                router.query.shoe_type === mainFilter &&
-                router.query.shoe_type !== "All"
-                  ? "active-shoe-type"
-                  : ""
+                router.query.shoe_type === mainFilter ? "active-shoe-type" : ""
               }
               key={mainFilter}
               onClick={handleShoeTypeFilterClick}
@@ -106,14 +104,16 @@ export default Filters;
 const FiltersContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2em;
+  align-items: center;
+  width: 35em;
+  margin: 0 auto;
 `;
 
 const ColoursContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 1em;
-  margin: 1em auto 2em auto;
+  margin: 1em auto;
 
   a.active-colour {
     transform: scale(1.1) translateY(-5px);
@@ -127,12 +127,15 @@ const ShoeTypeFilterContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1em;
+  flex-wrap: wrap;
+  margin: 1em auto;
+  gap: 0.5em;
+  
   height: 8vh;
-  font-size: 20px;
+  font-size: 18px;
 
   a {
-    text-decoration: none;
+    text-decoration: underline;
     text-transform: uppercase;
   }
 
