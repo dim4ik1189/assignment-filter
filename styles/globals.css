@@ -14,3 +14,33 @@ a {
 * {
   box-sizing: border-box;
 }
+
+ul.pagination {
+  display: flex;
+  justify-content: center;
+  gap: .1em;
+  list-style: none;
+  margin: 3em;
+  padding: .75em;
+}
+
+ul.pagination > li {
+  display: block;
+  width: auto;
+  border-radius: .2em;
+  font-size: 1em;
+  border: 1px solid lightgray;
+  color: black;
+  background-color: white;
+}
+
+ul.pagination > li > a {
+  display: flex;
+  align-items: center;
+  padding: .35em .7em;
+}
+
+ul.pagination > li:hover, ul.pagination > li.selected {
+  color: cornflowerblue;
+  background-color: whitesmoke;
+}
