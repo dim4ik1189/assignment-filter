@@ -19,7 +19,6 @@ const mainFilters = [
 ];
 
 const PER_PAGE = 18;
-const TOTAL_NUM_OF_PAGES = 22; // todo for searching with q
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const EdgesList: NextPage = () => {
@@ -35,8 +34,8 @@ const EdgesList: NextPage = () => {
     }
 
     if (router.query.filter) {
-      const rqf = router.query.filter as string
-      setQ(rqf !== 'All' ? rqf : '');
+      const rqf = router.query.filter as string;
+      setQ(rqf !== "All" ? rqf : "");
       if (!router.query.page) {
         setPage(0);
       }
@@ -49,15 +48,9 @@ const EdgesList: NextPage = () => {
   }, [page]);
 
   const { data: edges, error } = useSWR(
-    Number(pageStart) >= 0 && Number(pageEnd)
-      ? `http://localhost:4000/api/edges?_start=${pageStart}&_end=${pageEnd}&q=${q}`
-      : q
-      ? `http://localhost:4000/api/edges?q=${q}`
-      : null,
+    "http://localhost:4000/api/edges",
     fetcher
   );
-
-  // /edges?q=Brown
 
   if (error) return <div>Error</div>;
   if (!edges) {
@@ -65,7 +58,7 @@ const EdgesList: NextPage = () => {
   }
 
   const handlePageChange = ({ selected }: { selected: number }): void => {
-    if (page < TOTAL_NUM_OF_PAGES) {
+    if (page < Math.ceil(edges?.length / PER_PAGE)) {
       setPage(selected);
       router.push({
         query: {
@@ -100,7 +93,7 @@ const EdgesList: NextPage = () => {
       </MainFilterContainer>
 
       <ListContainer>
-        {edges?.map((edge: any) => {
+        {edges?.slice(pageStart, pageEnd).map((edge: any) => {
           return (
             <CardContainer key={edge.node.name}>
               <Image
@@ -123,11 +116,15 @@ const EdgesList: NextPage = () => {
             </CardContainer>
           );
         })}
-        {Boolean(edges.length === 0) && <LoadingContainer>Empty... Please try another filter.</LoadingContainer>}
+        {Boolean(edges.length === 0) && (
+          <LoadingContainer>
+            Empty... Please try another filter.
+          </LoadingContainer>
+        )}
       </ListContainer>
       {Boolean(edges.length) && (
         <Pagination
-          totalPages={TOTAL_NUM_OF_PAGES}
+          totalPages={Math.ceil(edges?.length / PER_PAGE)}
           onPageChange={handlePageChange}
           forcePage={page}
         />
