@@ -1,7 +1,6 @@
 import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useRouter } from "next/router";
-import { tSExportAssignment } from "@babel/types";
 
 const MARKS = {
   50: "50",
@@ -34,7 +33,7 @@ const RangeBar = () => {
       min={MIN}
       max={MAX}
       step={MIN}
-      defaultValue={[MIN, MAX]}
+      defaultValue={[Number(router.query.range_start) || MIN, Number(router.query.range_end || MAX)]}
       dots
       onAfterChange={onAfterChange}
       marks={MARKS}

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import useSWR from "swr";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -7,6 +6,12 @@ import Image from "next/image";
 import Filters from "../Filters";
 import Pagination from "../Pagination";
 import { Edge } from "../../types";
+import {
+  CardContainer,
+  LoadingContainer,
+  NameContainer,
+  ListContainer,
+} from "./styled";
 
 const PER_PAGE = 18;
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -57,39 +62,55 @@ const EdgesList: NextPage = () => {
       });
     }
   };
-
   let filteredEdgesTotalPages;
+
+
+  const filterByShoeType = (shoe_type: string, edges: Array<Edge>, params: { flagHasBeenFiltered: boolean }): Array<Edge> | [] => {
+    if (shoe_type) {
+      filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
+      params.flagHasBeenFiltered = true
+      return edges.filter((edge: Edge) =>
+          edge.node?.categoryTags
+              ?.toString()
+              ?.includes(shoe_type as string)
+      );
+    }
+
+    return [];
+  }
+
   const filteredEdges = (edges: Array<Edge>): Array<Edge> => {
-    let filteredEdges: Array<Edge> = [];
-    let flagHasBeenFiltered = false;
+    let filteredEdges: Array<Edge>;
+    const params = { flagHasBeenFiltered: false };
 
-    if (router?.query?.shoe_type) {
-      filteredEdges = edges.filter((edge: Edge) =>
-        edge.node?.categoryTags
-          ?.toString()
-          ?.includes(router?.query?.shoe_type as string)
+    const { shoe_type, colour, range_start, range_end } = router?.query;
+
+    filteredEdges = filterByShoeType(shoe_type as string, edges, params)
+
+    if (colour) {
+      filteredEdges = (params.flagHasBeenFiltered ? filteredEdges : edges).filter(
+        (edge: Edge) =>
+          edge.node?.colorFamily?.[0].name.includes(
+            colour as string
+          )
       );
-      filteredEdgesTotalPages = Math.ceil(
-          filteredEdges?.length / PER_PAGE
-      );
-      flagHasBeenFiltered = true;
+      filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
+      params.flagHasBeenFiltered = true;
     }
 
-    if (router?.query?.colour) {
-      filteredEdges = (
-        flagHasBeenFiltered ? filteredEdges : edges
-      ).filter((edge: Edge) =>
-        edge.node?.colorFamily?.[0].name.includes(
-          router?.query.colour as string
-        )
+    if (range_start && range_end) {
+      filteredEdges = (params.flagHasBeenFiltered ? filteredEdges : edges).filter(
+        (edge: Edge) =>
+          Number(edge.node?.shopifyProductEu?.variants?.edges[0].node.price) >
+            Number(range_start) &&
+          Number(edge.node?.shopifyProductEu?.variants?.edges[0].node.price) <
+            Number(range_end)
       );
-      filteredEdgesTotalPages = Math.ceil(
-          filteredEdges?.length / PER_PAGE
-      );
-      flagHasBeenFiltered = true;
+      filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
+      params.flagHasBeenFiltered = true;
     }
 
-    return flagHasBeenFiltered ? filteredEdges : edges;
+    return params.flagHasBeenFiltered ? filteredEdges : edges;
   };
 
   return (
@@ -145,46 +166,3 @@ const EdgesList: NextPage = () => {
 };
 
 export default EdgesList;
-
-const CardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25em;
-  position: relative;
-
-  > img {
-    width: 30em;
-  }
-`;
-
-const NameContainer = styled.div`
-  max-width: 290px;
-  text-transform: uppercase;
-  font-size: 15px;
-  letter-spacing: 0.2em;
-
-  span {
-    position: absolute;
-    bottom: 18px;
-    right: 3px;
-  }
-`;
-
-const ListContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 3em;
-  margin: 0 1.5em;
-  justify-content: center;
-  align-items: center;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 75vh;
-  font-size: 25px;
-  color: cadetblue;
-`;
