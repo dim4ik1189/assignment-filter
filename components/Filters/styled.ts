@@ -53,3 +53,10 @@ export const ColourContainer = styled.a`
   border-radius: 50%;
   background-color: ${(props) => props.color};
 `;
+
+export const ClearFiltersContainer = styled.a`
+  display: block;
+  margin-top: 2em;
+  margin-left: auto;
+  font-size: 18px;
+`;

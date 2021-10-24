@@ -2,7 +2,13 @@ import React from "react";
 import { useRouter } from "next/router";
 import { NextPage } from "next";
 import RangeBar from "./RangeBar";
-import { ShoeTypeFilterContainer, FiltersContainer, ColoursContainer, ColourContainer } from "./styled";
+import {
+  ShoeTypeFilterContainer,
+  FiltersContainer,
+  ColoursContainer,
+  ColourContainer,
+  ClearFiltersContainer,
+} from "./styled";
 
 const SHOE_TYPE_FILTERS = [
   "All",
@@ -57,7 +63,13 @@ const Filters: NextPage = () => {
     });
   };
 
-  // todo priceRange
+  const handleClearFilters = () => {
+    if (Object.keys(router.query).length) {
+      router.push({
+        query: {},
+      });
+    }
+  };
 
   return (
     <FiltersContainer>
@@ -96,7 +108,12 @@ const Filters: NextPage = () => {
           );
         })}
       </ColoursContainer>
-      <RangeBar/>
+      <RangeBar />
+      {Boolean(Object.keys(router.query).length) && (
+        <ClearFiltersContainer onClick={handleClearFilters}>
+          CLEAR FILTERS
+        </ClearFiltersContainer>
+      )}
     </FiltersContainer>
   );
 };
