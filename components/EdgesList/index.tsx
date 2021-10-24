@@ -2,21 +2,10 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 import type { NextPage } from "next";
-import Image from "next/image";
-import Pagination from "../Pagination";
 import { useRouter } from "next/router";
-
-const mainFilters = [
-  "All",
-  "Boots",
-  "Sandals",
-  "Flats",
-  "Heels",
-  "Mules",
-  "Brogues",
-  "Sneakers",
-  "Ballerinas",
-];
+import Image from "next/image";
+import Filters from '../Filters';
+import Pagination from "../Pagination";
 
 const PER_PAGE = 18;
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -69,29 +58,9 @@ const EdgesList: NextPage = () => {
     }
   };
 
-  const handleFilterClick = (e: any) => {
-    router.push({
-      query: { filter: e.target.id },
-    });
-  };
-
   return (
     <>
-      <MainFilterContainer>
-        {mainFilters.map((mainFilter: string) => {
-          return (
-            <a
-              id={mainFilter}
-              className={q === mainFilter && q !== "All" ? "active-filter" : ""}
-              key={mainFilter}
-              onClick={handleFilterClick}
-            >
-              {mainFilter}
-            </a>
-          );
-        })}
-      </MainFilterContainer>
-
+      <Filters q={q}/>
       <ListContainer>
         {edges?.slice(pageStart, pageEnd).map((edge: any) => {
           return (
@@ -116,7 +85,7 @@ const EdgesList: NextPage = () => {
             </CardContainer>
           );
         })}
-        {Boolean(edges.length === 0) && (
+        {!Boolean(edges.length) && (
           <LoadingContainer>
             Empty... Please try another filter.
           </LoadingContainer>
@@ -154,6 +123,7 @@ const NameContainer = styled.div`
 
   span {
     position: absolute;
+    bottom: 18px;
     right: 3px;
   }
 `;
@@ -177,7 +147,7 @@ const LoadingContainer = styled.div`
   color: cadetblue;
 `;
 
-const MainFilterContainer = styled.div`
+const FilterContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
