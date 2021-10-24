@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Filters from '../Filters';
 import Pagination from "../Pagination";
+import {Edge} from "../../types";
 
 const PER_PAGE = 18;
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -15,21 +16,21 @@ const EdgesList: NextPage = () => {
   const [page, setPage] = useState<number>(0);
   const [pageStart, setPageStart] = useState<number>(0);
   const [pageEnd, setPageEnd] = useState<number>(PER_PAGE);
-  const [q, setQ] = useState("");
+  const [shoeType, setShoeType] = useState("");
 
   useEffect(() => {
     if (Number(router.query.page) >= 0) {
       setPage(Number(router.query.page) - 1);
     }
 
-    if (router.query.filter) {
-      const rqf = router.query.filter as string;
-      setQ(rqf !== "All" ? rqf : "");
+    if (router.query.shoe_type) {
+      const rqf = router.query.shoe_type as string;
+      setShoeType(rqf !== "All" ? rqf : "");
       if (!router.query.page) {
         setPage(0);
       }
     }
-  }, [router.query.page, router.query.filter]);
+  }, [router.query.page, router.query.shoe_type]);
 
   useEffect(() => {
     setPageStart(PER_PAGE * page);
@@ -51,18 +52,27 @@ const EdgesList: NextPage = () => {
       setPage(selected);
       router.push({
         query: {
-          ...(q && { filter: q }),
+          ...(shoeType && { shoe_type: shoeType }),
           page: selected + 1,
         },
       });
     }
   };
+  let filteredEdgesTotalPages;
+  const filteredEdges = (edges: Array<Edge>): Array<Edge> => {
+    if (shoeType) {
+      const shoeTypeFilteredEdges: Array<Edge> = edges.filter((edge: Edge) => edge.node?.categoryTags?.includes(shoeType) || edge.node.name.includes(shoeType))
+      filteredEdgesTotalPages = Math.ceil(shoeTypeFilteredEdges?.length / PER_PAGE)
+      return shoeTypeFilteredEdges
+    }
+    return edges
+  }
 
   return (
     <>
-      <Filters q={q}/>
+      <Filters q={shoeType}/>
       <ListContainer>
-        {edges?.slice(pageStart, pageEnd).map((edge: any) => {
+        {filteredEdges(edges)?.slice(pageStart, pageEnd).map((edge: Edge) => {
           return (
             <CardContainer key={edge.node.name}>
               <Image
@@ -78,7 +88,7 @@ const EdgesList: NextPage = () => {
                 <span>
                   €
                   {Math.round(
-                    edge.node.shopifyProductEu.variants.edges[0].node.price
+                    Number(edge.node.shopifyProductEu.variants.edges[0].node.price)
                   )}
                 </span>
               </NameContainer>
@@ -91,9 +101,9 @@ const EdgesList: NextPage = () => {
           </LoadingContainer>
         )}
       </ListContainer>
-      {Boolean(edges.length) && (
+      {(Boolean(edges.length) || Boolean(filteredEdgesTotalPages)) && (
         <Pagination
-          totalPages={Math.ceil(edges?.length / PER_PAGE)}
+          totalPages={(Number(filteredEdgesTotalPages) >= 0 ? filteredEdgesTotalPages : Math.ceil(edges?.length / PER_PAGE)) || 0}
           onPageChange={handlePageChange}
           forcePage={page}
         />
