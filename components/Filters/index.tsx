@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 import { useRouter } from "next/router";
 import { NextPage } from "next";
+import RangeBar from "./RangeBar";
+import { ShoeTypeFilterContainer, FiltersContainer, ColoursContainer, ColourContainer } from "./styled";
 
 const SHOE_TYPE_FILTERS = [
   "All",
@@ -29,7 +30,7 @@ const COLOURS = [
 const Filters: NextPage = () => {
   const router = useRouter();
 
-  const handleShoeTypeFilterClick = ({ target }: any) => {
+  const handleShoeTypeFilterClick = ({ target }: any): void => {
     const routerQueryCopy = { ...router.query };
     if (routerQueryCopy.page) {
       delete routerQueryCopy.page;
@@ -46,7 +47,7 @@ const Filters: NextPage = () => {
     });
   };
 
-  const handleOnColourClick = (e: any) => {
+  const handleOnColourClick = (e: any): void => {
     const routerQueryCopy = { ...router.query };
     if (routerQueryCopy.page) {
       delete routerQueryCopy.page;
@@ -95,60 +96,9 @@ const Filters: NextPage = () => {
           );
         })}
       </ColoursContainer>
+      <RangeBar/>
     </FiltersContainer>
   );
 };
 
 export default Filters;
-
-const FiltersContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 35em;
-  margin: 0 auto;
-`;
-
-const ColoursContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1em;
-  margin: 1em auto;
-
-  a.active-colour {
-    transform: scale(1.1) translateY(-5px);
-    box-shadow: 0px 8px 6px 1px rgba(0, 0, 0, 0.3);
-    -webkit-box-shadow: 0px 8px 6px 1px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: 0px 8px 6px 1px rgba(0, 0, 0, 0.3);
-  }
-`;
-
-const ShoeTypeFilterContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 1em auto;
-  gap: 0.5em;
-  
-  height: 8vh;
-  font-size: 18px;
-
-  a {
-    text-decoration: underline;
-    text-transform: uppercase;
-  }
-
-  a.active-shoe-type {
-    text-decoration: underline;
-    color: cornflowerblue;
-  }
-`;
-
-const ColourContainer = styled.a`
-  display: block;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${(props) => props.color};
-`;
