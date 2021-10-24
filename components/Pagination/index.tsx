@@ -8,7 +8,6 @@ type PaginateProps = {
 }
 
 const Pagination: FC<PaginateProps> = ({ totalPages, onPageChange, forcePage }) => {
-  // ?_start=20&_end=30
   return <ReactPaginate
       forcePage={forcePage}
       pageCount={totalPages}

@@ -4,9 +4,9 @@ import useSWR from "swr";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import Filters from '../Filters';
+import Filters from "../Filters";
 import Pagination from "../Pagination";
-import {Edge} from "../../types";
+import { Edge } from "../../types";
 
 const PER_PAGE = 18;
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -16,7 +16,6 @@ const EdgesList: NextPage = () => {
   const [page, setPage] = useState<number>(0);
   const [pageStart, setPageStart] = useState<number>(0);
   const [pageEnd, setPageEnd] = useState<number>(PER_PAGE);
-  const [shoeType, setShoeType] = useState("");
 
   useEffect(() => {
     if (Number(router.query.page) >= 0) {
@@ -24,8 +23,6 @@ const EdgesList: NextPage = () => {
     }
 
     if (router.query.shoe_type) {
-      const rqf = router.query.shoe_type as string;
-      setShoeType(rqf !== "All" ? rqf : "");
       if (!router.query.page) {
         setPage(0);
       }
@@ -49,61 +46,96 @@ const EdgesList: NextPage = () => {
 
   const handlePageChange = ({ selected }: { selected: number }): void => {
     if (page < Math.ceil(edges?.length / PER_PAGE)) {
-      setPage(selected);
       router.push({
         query: {
-          ...(shoeType && { shoe_type: shoeType }),
+          ...(router?.query?.shoe_type && {
+            shoe_type: router?.query?.shoe_type,
+          }),
+          ...(router?.query?.colour && { colour: router?.query?.colour }),
           page: selected + 1,
         },
       });
     }
   };
+
   let filteredEdgesTotalPages;
   const filteredEdges = (edges: Array<Edge>): Array<Edge> => {
-    if (shoeType) {
-      const shoeTypeFilteredEdges: Array<Edge> = edges.filter((edge: Edge) => edge.node?.categoryTags?.includes(shoeType) || edge.node.name.includes(shoeType))
-      filteredEdgesTotalPages = Math.ceil(shoeTypeFilteredEdges?.length / PER_PAGE)
-      return shoeTypeFilteredEdges
+    let filteredEdges: Array<Edge> = [];
+    let flagHasBeenFiltered = false;
+
+    if (router?.query?.shoe_type) {
+      filteredEdges = edges.filter((edge: Edge) =>
+        edge.node?.categoryTags
+          ?.toString()
+          ?.includes(router?.query?.shoe_type as string)
+      );
+      filteredEdgesTotalPages = Math.ceil(
+          filteredEdges?.length / PER_PAGE
+      );
+      flagHasBeenFiltered = true;
     }
-    return edges
-  }
+
+    if (router?.query?.colour) {
+      filteredEdges = (
+        flagHasBeenFiltered ? filteredEdges : edges
+      ).filter((edge: Edge) =>
+        edge.node?.colorFamily?.[0].name.includes(
+          router?.query.colour as string
+        )
+      );
+      filteredEdgesTotalPages = Math.ceil(
+          filteredEdges?.length / PER_PAGE
+      );
+      flagHasBeenFiltered = true;
+    }
+
+    return flagHasBeenFiltered ? filteredEdges : edges;
+  };
 
   return (
     <>
-      <Filters q={shoeType}/>
+      <Filters />
       <ListContainer>
-        {filteredEdges(edges)?.slice(pageStart, pageEnd).map((edge: Edge) => {
-          return (
-            <CardContainer key={edge.node.name}>
-              <Image
-                src={`https:${edge.node.thumbnailImage.file.url}`}
-                alt={edge.node.name}
-                width={450}
-                height={450}
-                placeholder="blur"
-                blurDataURL="https://via.placeholder.com/450"
-              />
-              <NameContainer>
-                {edge.node.name}
-                <span>
-                  €
-                  {Math.round(
-                    Number(edge.node.shopifyProductEu.variants.edges[0].node.price)
-                  )}
-                </span>
-              </NameContainer>
-            </CardContainer>
-          );
-        })}
-        {!Boolean(edges.length) && (
+        {filteredEdges(edges)
+          ?.slice(pageStart, pageEnd)
+          .map((edge: Edge) => {
+            return (
+              <CardContainer key={edge.node.name}>
+                <Image
+                  src={`https:${edge.node.thumbnailImage.file.url}`}
+                  alt={edge.node.name}
+                  width={450}
+                  height={450}
+                  placeholder="blur"
+                  blurDataURL="https://via.placeholder.com/450"
+                />
+                <NameContainer>
+                  {edge.node.name}
+                  <span>
+                    €
+                    {Math.round(
+                      Number(
+                        edge.node.shopifyProductEu.variants.edges[0].node.price
+                      )
+                    )}
+                  </span>
+                </NameContainer>
+              </CardContainer>
+            );
+          })}
+        {!Boolean(filteredEdges(edges).length) && (
           <LoadingContainer>
             Empty... Please try another filter.
           </LoadingContainer>
         )}
       </ListContainer>
-      {(Boolean(edges.length) || Boolean(filteredEdgesTotalPages)) && (
+      {Boolean(filteredEdges(edges).length > PER_PAGE * 2) && (
         <Pagination
-          totalPages={(Number(filteredEdgesTotalPages) >= 0 ? filteredEdgesTotalPages : Math.ceil(edges?.length / PER_PAGE)) || 0}
+          totalPages={
+            (Number(filteredEdgesTotalPages) >= 0
+              ? filteredEdgesTotalPages
+              : Math.ceil(edges?.length / PER_PAGE)) || 0
+          }
           onPageChange={handlePageChange}
           forcePage={page}
         />
@@ -155,23 +187,4 @@ const LoadingContainer = styled.div`
   height: 75vh;
   font-size: 25px;
   color: cadetblue;
-`;
-
-const FilterContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1em;
-  height: 8vh;
-  font-size: 20px;
-
-  a {
-    text-decoration: none;
-    text-transform: uppercase;
-  }
-
-  a.active-filter {
-    text-decoration: underline;
-    color: cornflowerblue;
-  }
 `;

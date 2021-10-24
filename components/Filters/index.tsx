@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
+import { NextPage } from "next";
 
-const shoeTypeFilters = [
+const SHOE_TYPE_FILTERS = [
   "All",
   "Boots",
   "Sandals",
@@ -14,7 +15,7 @@ const shoeTypeFilters = [
   "Ballerinas",
 ];
 
-const colors = [
+const COLOURS = [
   "Black",
   "Blue",
   "Brown",
@@ -25,47 +26,104 @@ const colors = [
   "Silver",
 ];
 
-const sizes = ["34", "35", "36", "37", "38", "39", "40", "41", "42"];
-
-const styleFilters = ['']
-
-type FiltersProps = {
-  q: string;
-};
-
-
-const Filters: React.FC<FiltersProps> = ({ q }) => {
+const Filters: NextPage = () => {
   const router = useRouter();
 
-  const handleShoeTypeFilterClick = (e: any) => {
+  const handleShoeTypeFilterClick = ({ target }: any) => {
+    const routerQueryCopy = { ...router.query };
+    if (routerQueryCopy.page) {
+      delete routerQueryCopy.page;
+    }
+
+    if (target.id === 'All') {
+      delete routerQueryCopy.shoe_type;
+    }
     router.push({
-      query: { shoe_type: e.target.id },
+      query: {
+        ...routerQueryCopy,
+        ...(target.id !== "All" && { shoe_type: target.id }),
+      },
+    });
+  };
+
+  const handleOnColourClick = (e: any) => {
+    const routerQueryCopy = { ...router.query };
+    if (routerQueryCopy.page) {
+      delete routerQueryCopy.page;
+    }
+    router.push({
+      query: { ...routerQueryCopy, colour: e.target.id },
     });
   };
 
   // todo priceRange
 
   return (
-    <FilterContainer>
-      {shoeTypeFilters.map((mainFilter: string) => {
-        return (
-          <a
-            id={mainFilter}
-            className={q === mainFilter && q !== "All" ? "active-filter" : ""}
-            key={mainFilter}
-            onClick={handleShoeTypeFilterClick}
-          >
-            {mainFilter}
-          </a>
-        );
-      })}
-    </FilterContainer>
+    <FiltersContainer>
+      <ShoeTypeFilterContainer>
+        {SHOE_TYPE_FILTERS.map((mainFilter: string) => {
+          return (
+            <a
+              id={mainFilter}
+              className={
+                router.query.shoe_type === mainFilter &&
+                router.query.shoe_type !== "All"
+                  ? "active-shoe-type"
+                  : ""
+              }
+              key={mainFilter}
+              onClick={handleShoeTypeFilterClick}
+            >
+              {mainFilter}
+            </a>
+          );
+        })}
+      </ShoeTypeFilterContainer>
+      <ColoursContainer>
+        COLOURS:
+        {COLOURS.map((c: string) => {
+          return (
+            <ColourContainer
+              id={c}
+              className={
+                router.query.colour === c && router.query.colour !== "All"
+                  ? "active-colour"
+                  : ""
+              }
+              key={c}
+              color={c.toLowerCase()}
+              onClick={handleOnColourClick}
+            />
+          );
+        })}
+      </ColoursContainer>
+    </FiltersContainer>
   );
 };
 
 export default Filters;
 
-const FilterContainer = styled.div`
+const FiltersContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+`;
+
+const ColoursContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin: 1em auto 2em auto;
+
+  a.active-colour {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0px 8px 6px 1px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 8px 6px 1px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 8px 6px 1px rgba(0, 0, 0, 0.3);
+  }
+`;
+
+const ShoeTypeFilterContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -78,8 +136,16 @@ const FilterContainer = styled.div`
     text-transform: uppercase;
   }
 
-  a.active-filter {
+  a.active-shoe-type {
     text-decoration: underline;
     color: cornflowerblue;
   }
+`;
+
+const ColourContainer = styled.a`
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: ${(props) => props.color};
 `;
