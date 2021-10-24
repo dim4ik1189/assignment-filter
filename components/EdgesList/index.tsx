@@ -64,42 +64,36 @@ const EdgesList: NextPage = () => {
   };
   let filteredEdgesTotalPages;
 
+  const filteredEdges = (edges: Array<Edge>): Array<Edge> => {
+    let filteredEdges: Array<Edge> = [];
+    let flagHasBeenFiltered = false;
+    const { shoe_type, colour, range_start, range_end } = router?.query;
 
-  const filterByShoeType = (shoe_type: string, edges: Array<Edge>, params: { flagHasBeenFiltered: boolean }): Array<Edge> | [] => {
     if (shoe_type) {
-      filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
-      params.flagHasBeenFiltered = true
-      return edges.filter((edge: Edge) =>
+      filteredEdges = edges.filter((edge: Edge) =>
           edge.node?.categoryTags
               ?.toString()
               ?.includes(shoe_type as string)
       );
+      filteredEdgesTotalPages = Math.ceil(
+          filteredEdges?.length / PER_PAGE
+      );
+      flagHasBeenFiltered = true;
     }
 
-    return [];
-  }
-
-  const filteredEdges = (edges: Array<Edge>): Array<Edge> => {
-    let filteredEdges: Array<Edge>;
-    const params = { flagHasBeenFiltered: false };
-
-    const { shoe_type, colour, range_start, range_end } = router?.query;
-
-    filteredEdges = filterByShoeType(shoe_type as string, edges, params)
-
     if (colour) {
-      filteredEdges = (params.flagHasBeenFiltered ? filteredEdges : edges).filter(
+      filteredEdges = (flagHasBeenFiltered ? filteredEdges : edges).filter(
         (edge: Edge) =>
           edge.node?.colorFamily?.[0].name.includes(
             colour as string
           )
       );
       filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
-      params.flagHasBeenFiltered = true;
+      flagHasBeenFiltered = true;
     }
 
     if (range_start && range_end) {
-      filteredEdges = (params.flagHasBeenFiltered ? filteredEdges : edges).filter(
+      filteredEdges = (flagHasBeenFiltered ? filteredEdges : edges).filter(
         (edge: Edge) =>
           Number(edge.node?.shopifyProductEu?.variants?.edges[0].node.price) >
             Number(range_start) &&
@@ -107,10 +101,10 @@ const EdgesList: NextPage = () => {
             Number(range_end)
       );
       filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
-      params.flagHasBeenFiltered = true;
+      flagHasBeenFiltered = true;
     }
 
-    return params.flagHasBeenFiltered ? filteredEdges : edges;
+    return flagHasBeenFiltered ? filteredEdges : edges;
   };
 
   return (
