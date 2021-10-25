@@ -41,6 +41,7 @@ ul.pagination > li > a {
 }
 
 ul.pagination > li:hover, ul.pagination > li.selected {
+  cursor: pointer;
   color: cornflowerblue;
   background-color: whitesmoke;
 }

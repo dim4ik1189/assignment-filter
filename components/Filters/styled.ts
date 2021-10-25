@@ -38,6 +38,7 @@ export const ShoeTypeFilterContainer = styled.div`
   a {
     text-decoration: underline;
     text-transform: uppercase;
+    cursor: pointer;
   }
 
   a.active-shoe-type {
@@ -52,6 +53,7 @@ export const ColourContainer = styled.a`
   height: 40px;
   border-radius: 50%;
   background-color: ${(props) => props.color};
+  cursor: pointer;
 `;
 
 export const ClearFiltersContainer = styled.a`
@@ -59,4 +61,5 @@ export const ClearFiltersContainer = styled.a`
   margin-top: 2em;
   margin-left: auto;
   font-size: 18px;
+  cursor: pointer;
 `;

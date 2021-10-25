@@ -27,10 +27,8 @@ const EdgesList: NextPage = () => {
       setPage(Number(router.query.page) - 1);
     }
 
-    if (router.query.shoe_type) {
-      if (!router.query.page) {
-        setPage(0);
-      }
+    if (!router.query.page) {
+      setPage(0);
     }
   }, [router.query.page, router.query.shoe_type]);
 
@@ -71,22 +69,16 @@ const EdgesList: NextPage = () => {
 
     if (shoe_type) {
       filteredEdges = edges.filter((edge: Edge) =>
-          edge.node?.categoryTags
-              ?.toString()
-              ?.includes(shoe_type as string)
+        edge.node?.categoryTags?.toString()?.includes(shoe_type as string)
       );
-      filteredEdgesTotalPages = Math.ceil(
-          filteredEdges?.length / PER_PAGE
-      );
+      filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
       flagHasBeenFiltered = true;
     }
 
     if (colour) {
       filteredEdges = (flagHasBeenFiltered ? filteredEdges : edges).filter(
         (edge: Edge) =>
-          edge.node?.colorFamily?.[0].name.includes(
-            colour as string
-          )
+          edge.node?.colorFamily?.[0].name.includes(colour as string)
       );
       filteredEdgesTotalPages = Math.ceil(filteredEdges?.length / PER_PAGE);
       flagHasBeenFiltered = true;

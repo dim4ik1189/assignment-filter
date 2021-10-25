@@ -25,8 +25,12 @@ const RangeBar = () => {
   const router = useRouter();
   const handleRangeChange = (rangeArr: Array<number>): void => {
     const [range_start, range_end] = rangeArr;
+    const routerQueryCopy = { ...router.query };
+    if (routerQueryCopy.page) {
+      delete routerQueryCopy.page;
+    }
     router.push({
-      query: { ...router.query, range_start, range_end },
+      query: { ...routerQueryCopy, range_start, range_end },
     });
   };
   return (
